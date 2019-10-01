@@ -28,7 +28,7 @@ def findMark(arr):
     return (row,column)    
 
 def shuffleBoard(arr):
-    for x in range(200):
+    for x in range(1):
         pos = findMark(arr)
         direction = random.randint(0,3)
         #up
@@ -64,9 +64,62 @@ def shuffleBoard(arr):
                 arr[pos[0]][pos[1]+1] = "X"
                 arr[pos[0]][pos[1]] = temp
     return arr
+
+def movePOS(arr, num):
+    pos = findMark(arr)
+    direction = num
+    #up
+    if direction == 0:
+        if pos[0]-1 < 0:
+            return arr
+        else:
+            temp = arr[pos[0] -1 ][pos[1]]
+            arr[pos[0] -1 ][pos[1]] = "X"
+            arr[pos[0]][pos[1]] = temp
+    #down
+    if direction == 1:
+        if pos[0]+1 > len(arr) -1:
+            return arr
+        else:
+            temp = arr[pos[0] +1 ][pos[1]]
+            arr[pos[0] +1 ][pos[1]] = "X"
+            arr[pos[0]][pos[1]] = temp
+    #left 
+    if direction == 2:
+        if pos[1]-1 < 0:
+            return arr
+        else:
+            temp = arr[pos[0]][pos[1]-1]
+            arr[pos[0]][pos[1]-1] = "X"
+            arr[pos[0]][pos[1]] = temp   
+    #right 
+    if direction == 3:
+        if pos[1]+1 > len(arr)-1:
+            return arr
+        else:
+            temp = arr[pos[0]][pos[1]+1]
+            arr[pos[0]][pos[1]+1] = "X"
+            arr[pos[0]][pos[1]] = temp
+    return arr
+
+
 goal = initNBoard(9)
 board = shuffleBoard(initNBoard(9))
 npuzzle = puzzles.NPuzzle(board,goal)
-print(npuzzle.board)
 
+def graphSearch(puzzle, search):
+    if search == "bf":
+        if puzzle.board not in puzzle.stateSpace:
+            puzzle.stateSpace.append(puzzle.board)
+            print(puzzle.stateSpace)
+        else:
+            return
+        if puzzle.board == puzzle.goal:
+            return puzzle.stateSpace
+        else:
+            for x in range(3):
+                puzzle.board = movePOS(puzzle.board, x)
+                graphSearch(puzzle,"bf")
+        
+print(graphSearch(npuzzle, "bf"))
 
