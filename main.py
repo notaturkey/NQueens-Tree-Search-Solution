@@ -186,10 +186,7 @@ states = []
 depth = 0
 queue.append(npuzzle)
 result=""
-try:
-    result = graphSearch("bf", queue, states)
-except:
-    print("couldnt find solution") 
+#result = graphSearch("bf", queue, states)
 print("Path is:")
 if result:           
     while True:
@@ -208,7 +205,7 @@ queue = []
 states = []
 queue.append(npuzzle)
 # depth = 0
-result = graphSearch("df", queue, states)
+#result = graphSearch("df", queue, states)
 print("Path is:")
 if result:           
     while True:
@@ -237,11 +234,7 @@ class NQueen:
         self.goal = goal
     #def __init__(self, board, goal):
     #    self.board = board
-    #    self.goal = goal
-    
-    def findMarks():
-        pass
-
+    #    self.goal = goal   
     def isGoal(self):
         if self.board == self.goal:
             return True
@@ -260,24 +253,103 @@ def initQBoard(n):
         i[0] = "X"
     return arr
 
-board = initQBoard(9)
-print("queen board:\n"+str(board))
 def findQMark(arr):
     column = ''
     row = ''
+    result = []
     for i in range(len(arr)):
         for j in range(len(arr)):
             if arr[i][j] == "X":
                 column = j
                 row = i
-    return (row,column)
+                result.append([column,row])
+    return result
+print(str(findQMark(board)))
 
-def moveQ(col, direction):
-    
+def moveQ(col, direction, arry):
+    pos = findQMark(arry)
+    row = pos[col][0]
+    arr = copy.deepcopy(arry)
+    #down
+    if direction == 0:
+        if row + 1 > len(arr):
+            result = []
+            return result
+        else:
+            temp = arr[col][row+1]
+            arr[col][row+1] = "X"
+            arr[col][row] = temp
+    #up
+    if direction == 1:
+        if row - 1 < 0:
+            result = []
+            return result
+        else:
+            temp = arr[col][row-1]
+            arr[col][row-1] = "X"
+            arr[col][row] = temp
+    return copy.deepcopy(arr)
 
+print(str(moveQ(0,0,copy.deepcopy(board))))
 def expandQNodes(arr,goal):
-    up = NPuzzle(movePOS(0,copy.deepcopy(arr)),goal)
-    down = NPuzzle(movePOS(1,copy.deepcopy(arr)),goal)
-    left = NPuzzle(movePOS(2,copy.deepcopy(arr)),goal)
-    right =  NPuzzle(movePOS(3,copy.deepcopy(arr)),goal)
-    return [copy.deepcopy(up),copy.deepcopy(down),copy.deepcopy(left),copy.deepcopy(right)]
+    count = 0
+    results = []
+    for i in arr:
+        up = NQueen(moveQ(count,1,copy.deepcopy(arr)),goal)
+        down = NQueen(moveQ(count,0,copy.deepcopy(arr)),goal)
+        results.append([up,down])
+        count = count + 1
+    return results
+print(str(expandQNodes(copy.deepcopy(board), copy.deepcopy(board))))
+
+def graphSearchQueen(search, queue, states):
+    global depth
+    if search == "bf":
+        if queue:
+            while queue:
+                for i in queue:
+                    if i.isGoal():
+                        return i
+                parent = queue.pop(0)    
+                states.append(copy.deepcopy(parent.getBoard()))
+                explore = expandQNodes(copy.deepcopy(parent.getBoard()),parent.getGoal())
+                depth = depth +1
+                for x in copy.deepcopy(explore):
+                    for i in x:
+                        if not i.getBoard():
+                            continue
+                        parent.child.append(i)
+                        i.parent = parent
+                        if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
+                            i.depth = depth
+                            queue.append(copy.deepcopy(i))
+    if search == "df":
+        if queue:
+            while queue:
+                current = queue.pop(0)
+                # if current.depth > 300:
+                #     continue
+                states.append(current.getBoard())
+                if current.isGoal():
+                    return current
+                else:
+                    depth = depth + 1
+                    explore = expandNodes(copy.deepcopy(current.getBoard()),current.getGoal())
+                    for i in copy.deepcopy(explore):
+                        i.depth = depth
+                        current.child = i 
+                        i.parent = current
+                        if i.getBoard():
+                            if i.getBoard() not in states:
+                                queue.append(i)
+
+                                
+board = initQBoard(16)
+print("queen board:\n"+str(board))
+npuzzle = NPuzzle(board,goal)
+arr = npuzzle.getBoard()
+print("Starting array:\n"+str(arr))
+print("goal:\n"+str(npuzzle.getGoal())+"\n")
+queue = []
+states = []
+queue.append(npuzzle)
