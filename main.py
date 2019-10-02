@@ -152,12 +152,13 @@ def graphSearch(search, queue, states):
     global depth
     if search == "bf":
         if queue:
-            states.append(copy.deepcopy(queue[0].getBoard()))
-            if queue[0].isGoal():
-                return queue[0]
-            else:
-                explore = expandNodes(copy.deepcopy(queue[0].getBoard()),queue[0].getGoal())
-                parent = queue.pop(0)
+            while queue:
+                for i in queue:
+                    if i.isGoal():
+                        return i
+                parent = queue.pop(0)    
+                states.append(copy.deepcopy(parent.getBoard()))
+                explore = expandNodes(copy.deepcopy(parent.getBoard()),parent.getGoal())
                 depth = depth +1
                 for i in copy.deepcopy(explore): 
                     if not i.getBoard():
@@ -167,9 +168,28 @@ def graphSearch(search, queue, states):
                     if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
                         i.depth = depth
                         queue.append(copy.deepcopy(i))
-                return graphSearch(search,queue,states)
-        return NPuzzle([],[])
     if search == "df":
+        if queue:
+            while queue:
+                current = queue.pop(0)
+                # if current.depth > 300:
+                #     continue
+                states.append(current.getBoard())
+                if current.isGoal():
+                    return current
+                else:
+                    depth = depth + 1
+                    explore = expandNodes(copy.deepcopy(current.getBoard()),current.getGoal())
+                    for i in copy.deepcopy(explore):
+                        i.depth = depth
+                        current.child = i 
+                        i.parent = current
+                        if i.getBoard():
+                            if i.getBoard() not in states:
+                                queue.append(i)
+
+
+
 
 
     #     if puzzle.isGoal():
@@ -235,6 +255,7 @@ try:
 except:
     print("couldnt find solution") 
 
+print("Path is:")
 if result:           
     while True:
         print(result.board)
@@ -245,25 +266,30 @@ if result:
 else:
     print("didnt find with maximum depth = 300")
 
-# npuzzle = NPuzzle(board,goal)
-# arr = npuzzle.getBoard()
-# print("Starting array:\n"+str(arr))
-
-# print("goal:\n"+str(npuzzle.getGoal())+"\n")
-# queue = []
-# states = []
+npuzzle = NPuzzle(board,goal)
+arr = npuzzle.getBoard()
+print("Starting array:\n"+str(arr))
+print("goal:\n"+str(npuzzle.getGoal())+"\n")
+queue = []
+states = []
+queue.append(npuzzle)
 # depth = 0
-# try:
-#     result = graphSearch(npuzzle, "df", queue, states)
-# except:
-#     print("couldnt find solution") 
+result = graphSearch("df", queue, states)
 
-# if result:           
-#     while True:
-#         print(result.board)
-#         if result.parent:
-#             result = result.parent
-#         else:
-#             break
-# else:
-#     print("didnt find with maximum depth = 300")
+
+print("Path is:")
+if result:           
+    while True:
+        print(result.board)
+        if result.parent:
+            result = result.parent
+        else:
+            break
+else:
+    print("didnt find with maximum depth = 300")
+
+
+
+###############################################
+# NQUENNS YAY
+################################################
