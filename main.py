@@ -222,7 +222,7 @@ else:
 ################################################
 
 class NQueen:
-    def __init__(self,board,goal):
+    def __init__(self,board):
         self.board = board
         self.goal = goal
         self.child = []
@@ -230,16 +230,23 @@ class NQueen:
         self.depth = 0
     def setBoard(self,board):
         self.board = board
-    def setGoal(self,goal):
-        self.goal = goal
     #def __init__(self, board, goal):
     #    self.board = board
     #    self.goal = goal   
-    def isGoal(self):
-        if self.board == self.goal:
-            return True
-        else:
-            return False
+    def isGoal(self,pos):
+        for i in pos:
+            for x in range(len(pos)):
+                if i[0] in pos[x][0]:
+                    return False
+                elif i[1] in pos[x][1]:
+                    return False
+            for x in pos: 
+                if i==x:
+                    continue
+                if abs(x[1] - i[1] / x[0] - i[0]) == 1:
+                    return False
+        return True
+
 
     def getBoard(self):
         return copy.deepcopy(self.board)
@@ -295,9 +302,9 @@ def expandQNodes(arr,goal):
     count = 0
     results = []
     for i in arr:
-        up = NQueen(moveQ(count,1,copy.deepcopy(arr)),goal)
-        down = NQueen(moveQ(count,0,copy.deepcopy(arr)),goal)
-        results.append([up,down])
+        #up = NQueen(moveQ(count,1,copy.deepcopy(arr)),goal)
+        down = NQueen(moveQ(count,0,copy.deepcopy(arr)))
+        results.append(down)
         count = count + 1
     return results
 print(str(expandQNodes(copy.deepcopy(board), copy.deepcopy(board))))
@@ -308,21 +315,21 @@ def graphSearchQueen(search, queue, states):
         if queue:
             while queue:
                 for i in queue:
+                    temp = i.isGoal() 
                     if i.isGoal():
                         return i
                 parent = queue.pop(0)    
                 states.append(copy.deepcopy(parent.getBoard()))
                 explore = expandQNodes(copy.deepcopy(parent.getBoard()),parent.getGoal())
                 depth = depth +1
-                for x in copy.deepcopy(explore):
-                    for i in x:
-                        if not i.getBoard():
-                            continue
-                        parent.child.append(i)
-                        i.parent = parent
-                        if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
-                            i.depth = depth
-                            queue.append(copy.deepcopy(i))
+                for i in copy.deepcopy(explore):
+                    if not i.getBoard():
+                        continue
+                    parent.child.append(i)
+                    i.parent = parent
+                    if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
+                        i.depth = depth
+                        queue.append(copy.deepcopy(i))
     if search == "df":
         if queue:
             while queue:
@@ -345,11 +352,11 @@ def graphSearchQueen(search, queue, states):
 
                                 
 board = initQBoard(16)
+nqueen = NQueen(board)
 print("queen board:\n"+str(board))
-npuzzle = NPuzzle(board,goal)
 arr = npuzzle.getBoard()
 print("Starting array:\n"+str(arr))
-print("goal:\n"+str(npuzzle.getGoal())+"\n")
 queue = []
 states = []
-queue.append(npuzzle)
+queue.append(nqueen)
+print(str(graphSearchQueen("bf", queue, states).getBoard()))
