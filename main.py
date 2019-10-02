@@ -8,6 +8,7 @@ class NPuzzle:
         self.goal = goal
         self.child = []
         self.parent = ""
+        self.depth = 0
     def setBoard(self,board):
         self.board = board
     def setGoal(self,goal):
@@ -135,8 +136,8 @@ def expandNodes(arr,goal):
     return [copy.deepcopy(up),copy.deepcopy(down),copy.deepcopy(left),copy.deepcopy(right)]
 
 
-goal = initNBoard(4)
-board = shuffleBoard(initNBoard(4))
+goal = initNBoard(9)
+board = shuffleBoard(initNBoard(9))
 
 npuzzle = NPuzzle(board,goal)
 arr = npuzzle.getBoard()
@@ -145,21 +146,23 @@ print("Starting array:\n"+str(arr))
 print("goal:\n"+str(npuzzle.getGoal())+"\n")
 queue = []
 states = []
+depth = 0
 def graphSearch(puzzle, search, queue, states):
+    global depth
     if search == "bf":
         if puzzle.isGoal():
             return puzzle
-        else:
-            print("current"+str(puzzle.getBoard()))
+        elif puzzle.depth < 300:
             states.append(copy.deepcopy(puzzle.getBoard()))
-            explore = expandNodes(copy.deepcopy(npuzzle.getBoard()),npuzzle.getGoal())
+            explore = expandNodes(copy.deepcopy(puzzle.getBoard()),puzzle.getGoal())
+            depth = depth +1
             for i in copy.deepcopy(explore): 
                 if not i.getBoard():
                     continue
                 puzzle.child.append(i)
                 i.parent = puzzle
                 if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
-                    print(i.getBoard())
+                    i.depth = depth
                     queue.append(copy.deepcopy(i))
             
             try:
@@ -167,7 +170,78 @@ def graphSearch(puzzle, search, queue, states):
             except:
                 x = False
             if x:
-                graphSearch(copy.deepcopy(x), "bf", queue,states)
+                return graphSearch(copy.deepcopy(x), "bf", queue,states)
+        else:
+            try:
+                x = queue.pop(0)
+            except:
+                x = False
+            if x:
+                return graphSearch(copy.deepcopy(x), "bf", queue,states)
+    if search == "df":
+        if puzzle.isGoal():
+            return puzzle
+        elif puzzle.depth < 3:
+            states.append(copy.deepcopy(puzzle.getBoard()))
+            explore = expandNodes(copy.deepcopy(puzzle.getBoard()),puzzle.getGoal())
+            depth = depth +1
+            for i in copy.deepcopy(explore): 
+                if not i.getBoard():
+                    continue
+                puzzle.child.append(i)
+                i.parent = puzzle
+                if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
+                    i.depth = depth
+                    queue.append(copy.deepcopy(i))
+                    try:
+                        x = queue.pop(0)
+                    except:
+                        x = False
+                    if x:
+                        graphSearch(copy.deepcopy(x), "df", queue,states)
+        else:
+            try:
+                x = queue.pop(0)
+            except:
+                x = False
+            if x:
+                graphSearch(copy.deepcopy(x), "df", queue,states)
 
-print(graphSearch(npuzzle, "bf", queue, states))
-            
+
+try:
+    result = graphSearch(npuzzle, "bf", queue, states)
+except:
+    print("couldnt find solution") 
+
+if result:           
+    while True:
+        print(result.board)
+        if result.parent:
+            result = result.parent
+        else:
+            break
+else:
+    print("didnt find with maximum depth = 300")
+
+npuzzle = NPuzzle(board,goal)
+arr = npuzzle.getBoard()
+print("Starting array:\n"+str(arr))
+
+print("goal:\n"+str(npuzzle.getGoal())+"\n")
+queue = []
+states = []
+depth = 0
+try:
+    result = graphSearch(npuzzle, "df", queue, states)
+except:
+    print("couldnt find solution") 
+
+if result:           
+    while True:
+        print(result.board)
+        if result.parent:
+            result = result.parent
+        else:
+            break
+else:
+    print("didnt find with maximum depth = 300")

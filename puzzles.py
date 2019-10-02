@@ -5,6 +5,7 @@ class NPuzzle:
         self.parent= ''
         self.child= ''
         self.sampleSpace = []
+        self.depth = 0 
     
     def isGoal(self):
         if self.board == self.goal:
