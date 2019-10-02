@@ -147,69 +147,91 @@ print("goal:\n"+str(npuzzle.getGoal())+"\n")
 queue = []
 states = []
 depth = 0
-def graphSearch(puzzle, search, queue, states):
+queue.append(npuzzle)
+def graphSearch(search, queue, states):
     global depth
     if search == "bf":
-        if puzzle.isGoal():
-            return puzzle
-        elif puzzle.depth < 300:
-            states.append(copy.deepcopy(puzzle.getBoard()))
-            explore = expandNodes(copy.deepcopy(puzzle.getBoard()),puzzle.getGoal())
-            depth = depth +1
-            for i in copy.deepcopy(explore): 
-                if not i.getBoard():
-                    continue
-                puzzle.child.append(i)
-                i.parent = puzzle
-                if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
-                    i.depth = depth
-                    queue.append(copy.deepcopy(i))
-            
-            try:
-                x = queue.pop(0)
-            except:
-                x = False
-            if x:
-                return graphSearch(copy.deepcopy(x), "bf", queue,states)
-        else:
-            try:
-                x = queue.pop(0)
-            except:
-                x = False
-            if x:
-                return graphSearch(copy.deepcopy(x), "bf", queue,states)
+        if queue:
+            states.append(copy.deepcopy(queue[0].getBoard()))
+            if queue[0].isGoal():
+                return queue[0]
+            else:
+                explore = expandNodes(copy.deepcopy(queue[0].getBoard()),queue[0].getGoal())
+                parent = queue.pop(0)
+                depth = depth +1
+                for i in copy.deepcopy(explore): 
+                    if not i.getBoard():
+                        continue
+                    parent.child.append(i)
+                    i.parent = parent
+                    if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
+                        i.depth = depth
+                        queue.append(copy.deepcopy(i))
+                return graphSearch(search,queue,states)
+        return NPuzzle([],[])
     if search == "df":
-        if puzzle.isGoal():
-            return puzzle
-        elif puzzle.depth < 3:
-            states.append(copy.deepcopy(puzzle.getBoard()))
-            explore = expandNodes(copy.deepcopy(puzzle.getBoard()),puzzle.getGoal())
-            depth = depth +1
-            for i in copy.deepcopy(explore): 
-                if not i.getBoard():
-                    continue
-                puzzle.child.append(i)
-                i.parent = puzzle
-                if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
-                    i.depth = depth
-                    queue.append(copy.deepcopy(i))
-                    try:
-                        x = queue.pop(0)
-                    except:
-                        x = False
-                    if x:
-                        graphSearch(copy.deepcopy(x), "df", queue,states)
-        else:
-            try:
-                x = queue.pop(0)
-            except:
-                x = False
-            if x:
-                graphSearch(copy.deepcopy(x), "df", queue,states)
 
 
+    #     if puzzle.isGoal():
+    #         return puzzle
+    #     elif puzzle.depth < 300:
+    #         states.append(copy.deepcopy(puzzle.getBoard()))
+    #         explore = expandNodes(copy.deepcopy(puzzle.getBoard()),puzzle.getGoal())
+    #         depth = depth +1
+    #         for i in copy.deepcopy(explore): 
+    #             if not i.getBoard():
+    #                 continue
+    #             puzzle.child.append(i)
+    #             i.parent = puzzle
+    #             if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
+    #                 i.depth = depth
+    #                 queue.append(copy.deepcopy(i))
+            
+    #         try:
+    #             x = queue.pop(0)
+    #         except:
+    #             x = False
+    #         if x:
+    #             return graphSearch(copy.deepcopy(x), "bf", queue,states)
+    #     else:
+    #         try:
+    #             x = queue.pop(0)
+    #         except:
+    #             x = False
+    #         if x:
+    #             return graphSearch(copy.deepcopy(x), "bf", queue,states)
+    # if search == "df":
+    #     if puzzle.isGoal():
+    #         return puzzle
+    #     elif puzzle.depth < 3:
+    #         states.append(copy.deepcopy(puzzle.getBoard()))
+    #         explore = expandNodes(copy.deepcopy(puzzle.getBoard()),puzzle.getGoal())
+    #         depth = depth +1
+    #         for i in copy.deepcopy(explore): 
+    #             if not i.getBoard():
+    #                 continue
+    #             puzzle.child.append(i)
+    #             i.parent = puzzle
+    #             if copy.deepcopy(i.getBoard()) not in copy.deepcopy(states):
+    #                 i.depth = depth
+    #                 queue.append(copy.deepcopy(i))
+    #                 try:
+    #                     x = queue.pop(0)
+    #                 except:
+    #                     x = False
+    #                 if x:
+    #                     graphSearch(copy.deepcopy(x), "df", queue,states)
+    #     else:
+    #         try:
+    #             x = queue.pop(0)
+    #         except:
+    #             x = False
+    #         if x:
+    #             graphSearch(copy.deepcopy(x), "df", queue,states)
+
+result=""
 try:
-    result = graphSearch(npuzzle, "bf", queue, states)
+    result = graphSearch("bf", queue, states)
 except:
     print("couldnt find solution") 
 
@@ -223,25 +245,25 @@ if result:
 else:
     print("didnt find with maximum depth = 300")
 
-npuzzle = NPuzzle(board,goal)
-arr = npuzzle.getBoard()
-print("Starting array:\n"+str(arr))
+# npuzzle = NPuzzle(board,goal)
+# arr = npuzzle.getBoard()
+# print("Starting array:\n"+str(arr))
 
-print("goal:\n"+str(npuzzle.getGoal())+"\n")
-queue = []
-states = []
-depth = 0
-try:
-    result = graphSearch(npuzzle, "df", queue, states)
-except:
-    print("couldnt find solution") 
+# print("goal:\n"+str(npuzzle.getGoal())+"\n")
+# queue = []
+# states = []
+# depth = 0
+# try:
+#     result = graphSearch(npuzzle, "df", queue, states)
+# except:
+#     print("couldnt find solution") 
 
-if result:           
-    while True:
-        print(result.board)
-        if result.parent:
-            result = result.parent
-        else:
-            break
-else:
-    print("didnt find with maximum depth = 300")
+# if result:           
+#     while True:
+#         print(result.board)
+#         if result.parent:
+#             result = result.parent
+#         else:
+#             break
+# else:
+#     print("didnt find with maximum depth = 300")
